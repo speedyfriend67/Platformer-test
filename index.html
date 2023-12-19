@@ -129,7 +129,7 @@
       ctx.fillStyle = player.color;
       ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
       ctx.shadowBlur = 5;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+      ctx.fillRect(player.x, player.y, player.width * zoom, player.height * zoom);
       ctx.shadowColor = 'transparent';
     }
 
@@ -148,8 +148,8 @@
       player.y += player.velocityY;
 
       // Check for collisions with the ground (including blocks)
-      if (player.y > canvas.height - player.height) {
-        player.y = canvas.height - player.height;
+      if (player.y > canvas.height - player.height * zoom) {
+        player.y = canvas.height - player.height * zoom;
         player.velocityY = 0;
         player.jumping = false;
       }
@@ -159,9 +159,9 @@
         if (obstacle.color !== '#2ecc71') { // Skip collision check for green blocks
           if (
             player.x < obstacle.x + obstacle.width &&
-            player.x + player.width > obstacle.x &&
+            player.x + player.width * zoom > obstacle.x &&
             player.y < obstacle.y + obstacle.height &&
-            player.y + player.height > obstacle.y
+            player.y + player.height * zoom > obstacle.y
           ) {
             // Collision with an obstacle
             resetGame();
