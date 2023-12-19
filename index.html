@@ -39,12 +39,25 @@
     const gravity = 0.5;
     const jumpStrength = 10;
 
+    const obstacles = [
+      { x: 200, y: canvas.height - 40, width: 30, height: 30, color: '#e74c3c' }, // Spike
+      { x: 400, y: canvas.height - 60, width: 50, height: 20, color: '#2ecc71' }, // Block
+      // Add more obstacles as needed
+    ];
+
     function drawPlayer() {
       ctx.fillStyle = player.color;
       ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
       ctx.shadowBlur = 5;
       ctx.fillRect(player.x, player.y, player.width, player.height);
       ctx.shadowColor = 'transparent';
+    }
+
+    function drawObstacles() {
+      obstacles.forEach((obstacle) => {
+        ctx.fillStyle = obstacle.color;
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      });
     }
 
     function update() {
@@ -59,11 +72,25 @@
         player.jumping = false;
       }
 
+      // Check for collisions with obstacles
+      obstacles.forEach((obstacle) => {
+        if (
+          player.x < obstacle.x + obstacle.width &&
+          player.x + player.width > obstacle.x &&
+          player.y < obstacle.y + obstacle.height &&
+          player.y + player.height > obstacle.y
+        ) {
+          // Collision with an obstacle
+          resetGame();
+        }
+      });
+
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw the player
+      // Draw the player and obstacles
       drawPlayer();
+      drawObstacles();
 
       // Request the next animation frame
       requestAnimationFrame(update);
@@ -76,8 +103,35 @@
       }
     }
 
-    // Event listener for jumping on mouse click
+    function resetGame() {
+      // Reset player position and obstacles
+      player.x = 50;
+      player.y = canvas.height / 2 - 15;
+      player.velocityY = 0;
+      player.jumping = false;
+
+      // Reset obstacle positions
+      obstacles.forEach((obstacle, index) => {
+        obstacle.x = (index + 2) * 200;
+      });
+    }
+
+    // Event listener for jumping on mouse click or space key
     canvas.addEventListener('click', jump);
+    window.addEventListener('keydown', (event) => {
+      if (event.code === 'Space') {
+        jump();
+      }
+    });
+
+    // Event listeners for arrow key controls
+    window.addEventListener('keydown', (event) => {
+      if (event.code === 'ArrowRight') {
+        player.x += 10;
+      } else if (event.code === 'ArrowLeft') {
+        player.x -= 10;
+      }
+    });
 
     // Start the game loop
     update();
