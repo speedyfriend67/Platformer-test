@@ -156,14 +156,16 @@
 
       // Check for collisions with obstacles (including moving spike)
       obstacles.forEach((obstacle) => {
-        if (
-          player.x < obstacle.x + obstacle.width &&
-          player.x + player.width > obstacle.x &&
-          player.y < obstacle.y + obstacle.height &&
-          player.y + player.height > obstacle.y
-        ) {
-          // Collision with an obstacle
-          resetGame();
+        if (obstacle.color !== '#2ecc71') { // Skip collision check for green blocks
+          if (
+            player.x < obstacle.x + obstacle.width &&
+            player.x + player.width > obstacle.x &&
+            player.y < obstacle.y + obstacle.height &&
+            player.y + player.height > obstacle.y
+          ) {
+            // Collision with an obstacle
+            resetGame();
+          }
         }
       });
 
