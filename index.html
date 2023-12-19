@@ -91,6 +91,7 @@
       width: 30,
       height: 30,
       color: '#3498db',
+      velocityX: 0,
       velocityY: 0,
       jumping: false,
       movingLeft: false,
@@ -100,6 +101,7 @@
     const obstacles = [];
 
     let gravity = 0.5;
+    let friction = 0.98; // Adjust friction to control sliding effect
     let zoom = 1;
     let attempts = 0;
 
@@ -140,7 +142,9 @@
 
     function update() {
       // Update player position and velocity
+      player.velocityX *= friction; // Apply friction for sliding effect
       player.velocityY += gravity;
+      player.x += player.velocityX;
       player.y += player.velocityY;
 
       // Check for collisions with the ground (including blocks)
@@ -183,10 +187,10 @@
 
       // Move player based on continuous input
       if (player.movingLeft) {
-        player.x -= 5;
+        player.velocityX -= 0.5;
       }
       if (player.movingRight) {
-        player.x += 5;
+        player.velocityX += 0.5;
       }
 
       // Clear the canvas
@@ -226,6 +230,7 @@
       // Reset player position and obstacles
       player.x = 50;
       player.y = canvas.height / 2 - 15;
+      player.velocityX = 0;
       player.velocityY = 0;
       player.jumping = false;
 
