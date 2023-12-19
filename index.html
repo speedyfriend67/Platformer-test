@@ -78,6 +78,7 @@
       </div>
       <button class="arrow-button" id="downButton">&#9660;</button>
     </div>
+    <div id="attempts">Attempts: 0</div>
   </div>
 
   <script>
@@ -92,16 +93,15 @@
       color: '#3498db',
       velocityY: 0,
       jumping: false,
+      movingLeft: false,
+      movingRight: false,
     };
 
-    const obstacles = [
-      { x: 200, y: canvas.height - 40, width: 30, height: 30, color: '#e74c3c' }, // Spike
-      { x: 400, y: canvas.height - 60, width: 50, height: 20, color: '#2ecc71' }, // Block
-      // Add more obstacles as needed
-    ];
+    const obstacles = [];
 
     let gravity = 0.5;
     let zoom = 1;
+    let attempts = 0;
 
     const gravityRange = document.getElementById('gravityRange');
     const gravityValue = document.getElementById('gravityValue');
@@ -111,6 +111,7 @@
     const leftButton = document.getElementById('leftButton');
     const rightButton = document.getElementById('rightButton');
     const downButton = document.getElementById('downButton');
+    const attemptsDisplay = document.getElementById('attempts');
 
     gravityRange.addEventListener('input', () => {
       gravity = parseFloat(gravityRange.value);
@@ -163,7 +164,30 @@
       });
 
       // Move the spike slowly in the x-direction
-      obstacles[0].x += 1;
+      obstacles.forEach((obstacle) => {
+        obstacle.x -= 1; // Move obstacles from right to left
+      });
+
+      // Generate new obstacles randomly
+      if (Math.random() < 0.02) {
+        const obstacleType = Math.random() < 0.5 ? 'spike' : 'block';
+        const obstacleHeight = obstacleType === 'spike' ? 30 : 20;
+        obstacles.push({
+          x: canvas.width,
+          y: canvas.height - obstacleHeight,
+          width: 30,
+          height: obstacleHeight,
+          color: obstacleType === 'spike' ? '#e74c3c' : '#2ecc71',
+        });
+      }
+
+      // Move player based on continuous input
+      if (player.movingLeft) {
+        player.x -= 5;
+      }
+      if (player.movingRight) {
+        player.x += 5;
+      }
 
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -171,6 +195,9 @@
       // Draw the player and obstacles
       drawPlayer();
       drawObstacles();
+
+      // Display attempts
+      attemptsDisplay.textContent = `Attempts: ${attempts}`;
 
       // Request the next animation frame
       requestAnimationFrame(update);
@@ -183,12 +210,12 @@
       }
     }
 
-    function movePlayer(direction) {
+    function movePlayer(direction, start) {
       if (direction === 'left') {
-        player.x -= 5;
+        player.movingLeft = start;
       } else if (direction === 'right') {
-        player.x += 5;
-      } else if (direction === 'up' && !player.jumping) {
+        player.movingRight = start;
+      } else if (direction === 'up' && start && !player.jumping) {
         jump();
       } else if (direction === 'down') {
         // Additional functionality for down arrow if needed
@@ -203,18 +230,23 @@
       player.jumping = false;
 
       // Reset obstacle positions
-      obstacles[0].x = 200; // Spike
-      obstacles[1].x = 400; // Block
+      obstacles.length = 0; // Clear obstacles array
+      attempts += 1;
     }
 
     // Event listeners for arrow key controls
-    leftButton.addEventListener('click', () => movePlayer('left'));
-    rightButton.addEventListener('click', () => movePlayer('right'));
-    upButton.addEventListener('click', () => movePlayer('up'));
-    downButton.addEventListener('click', () => movePlayer('down'));
+    leftButton.addEventListener('mousedown', () => movePlayer('left', true));
+    leftButton.addEventListener('mouseup', () => movePlayer('left', false));
+    rightButton.addEventListener('mousedown', () => movePlayer('right', true));
+    rightButton.addEventListener('mouseup', () => movePlayer('right', false));
+    upButton.addEventListener('mousedown', () => movePlayer('up', true));
+    upButton.addEventListener('mouseup', () => movePlayer('up', false));
+    downButton.addEventListener('mousedown', () => movePlayer('down', true));
+    downButton.addEventListener('mouseup', () => movePlayer('down', false));
 
     // Start the game loop
     update();
   </script>
 </body>
 </html>
+
