@@ -9,6 +9,7 @@
       margin: 0;
       overflow: hidden;
       background-color: #f0f0f0;
+      font-family: 'Arial', sans-serif;
     }
 
     canvas {
@@ -26,6 +27,35 @@
       padding: 10px;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .arrow-buttons {
+      display: flex;
+      justify-content: space-between;
+      width: 80px;
+      margin: auto;
+    }
+
+    .arrow-button {
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: 10px;
     }
   </style>
 </head>
@@ -35,10 +65,19 @@
     <label for="gravityRange">Gravity:</label>
     <input type="range" id="gravityRange" min="0.1" max="2" step="0.1" value="0.5">
     <input type="text" id="gravityValue" readonly>
-    <br>
-    <label for="zoomRange">Camera Zoom:</label>
-    <input type="range" id="zoomRange" min="0.5" max="2" step="0.1" value="1">
-    <input type="text" id="zoomValue" readonly>
+    <div class="zoom-controls">
+      <label for="zoomRange">Camera Zoom:</label>
+      <input type="range" id="zoomRange" min="0.5" max="2" step="0.1" value="1">
+      <input type="text" id="zoomValue" readonly>
+    </div>
+    <div class="arrow-buttons">
+      <button class="arrow-button" id="upButton">&#9650;</button>
+      <div>
+        <button class="arrow-button" id="leftButton">&#9664;</button>
+        <button class="arrow-button" id="rightButton">&#9654;</button>
+      </div>
+      <button class="arrow-button" id="downButton">&#9660;</button>
+    </div>
   </div>
 
   <script>
@@ -68,6 +107,10 @@
     const gravityValue = document.getElementById('gravityValue');
     const zoomRange = document.getElementById('zoomRange');
     const zoomValue = document.getElementById('zoomValue');
+    const upButton = document.getElementById('upButton');
+    const leftButton = document.getElementById('leftButton');
+    const rightButton = document.getElementById('rightButton');
+    const downButton = document.getElementById('downButton');
 
     gravityRange.addEventListener('input', () => {
       gravity = parseFloat(gravityRange.value);
@@ -145,6 +188,10 @@
         player.x -= 5;
       } else if (direction === 'right') {
         player.x += 5;
+      } else if (direction === 'up' && !player.jumping) {
+        jump();
+      } else if (direction === 'down') {
+        // Additional functionality for down arrow if needed
       }
     }
 
@@ -160,17 +207,11 @@
       obstacles[1].x = 400; // Block
     }
 
-    // Event listener for jumping on mouse click or space key
-    canvas.addEventListener('click', jump);
-    window.addEventListener('keydown', (event) => {
-      if (event.code === 'Space') {
-        jump();
-      } else if (event.code === 'ArrowLeft') {
-        movePlayer('left');
-      } else if (event.code === 'ArrowRight') {
-        movePlayer('right');
-      }
-    });
+    // Event listeners for arrow key controls
+    leftButton.addEventListener('click', () => movePlayer('left'));
+    rightButton.addEventListener('click', () => movePlayer('right'));
+    upButton.addEventListener('click', () => movePlayer('up'));
+    downButton.addEventListener('click', () => movePlayer('down'));
 
     // Start the game loop
     update();
