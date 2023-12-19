@@ -240,18 +240,42 @@
     }
 
     // Event listeners for arrow key controls
-    leftButton.addEventListener('mousedown', () => movePlayer('left', true));
-    leftButton.addEventListener('mouseup', () => movePlayer('left', false));
-    rightButton.addEventListener('mousedown', () => movePlayer('right', true));
-    rightButton.addEventListener('mouseup', () => movePlayer('right', false));
-    upButton.addEventListener('mousedown', () => movePlayer('up', true));
-    upButton.addEventListener('mouseup', () => movePlayer('up', false));
-    downButton.addEventListener('mousedown', () => movePlayer('down', true));
-    downButton.addEventListener('mouseup', () => movePlayer('down', false));
+    window.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          movePlayer('left', true);
+          break;
+        case 'ArrowRight':
+          movePlayer('right', true);
+          break;
+        case 'ArrowUp':
+          movePlayer('up', true);
+          break;
+        case 'ArrowDown':
+          movePlayer('down', true);
+          break;
+      }
+    });
+
+    window.addEventListener('keyup', (event) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          movePlayer('left', false);
+          break;
+        case 'ArrowRight':
+          movePlayer('right', false);
+          break;
+        case 'ArrowUp':
+          movePlayer('up', false);
+          break;
+        case 'ArrowDown':
+          movePlayer('down', false);
+          break;
+      }
+    });
 
     // Start the game loop
     update();
   </script>
 </body>
 </html>
-
