@@ -17,10 +17,29 @@
       border: 1px solid #ccc;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <div class="controls">
+    <label for="gravityRange">Gravity:</label>
+    <input type="range" id="gravityRange" min="0.1" max="2" step="0.1" value="0.5">
+    <input type="text" id="gravityValue" readonly>
+    <br>
+    <label for="zoomRange">Camera Zoom:</label>
+    <input type="range" id="zoomRange" min="0.5" max="2" step="0.1" value="1">
+    <input type="text" id="zoomValue" readonly>
+  </div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -36,14 +55,29 @@
       jumping: false,
     };
 
-    const gravity = 0.5;
-    const jumpStrength = 10;
-
     const obstacles = [
       { x: 200, y: canvas.height - 40, width: 30, height: 30, color: '#e74c3c' }, // Spike
       { x: 400, y: canvas.height - 60, width: 50, height: 20, color: '#2ecc71' }, // Block
       // Add more obstacles as needed
     ];
+
+    let gravity = 0.5;
+    let zoom = 1;
+
+    const gravityRange = document.getElementById('gravityRange');
+    const gravityValue = document.getElementById('gravityValue');
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomValue = document.getElementById('zoomValue');
+
+    gravityRange.addEventListener('input', () => {
+      gravity = parseFloat(gravityRange.value);
+      gravityValue.value = gravity.toFixed(1);
+    });
+
+    zoomRange.addEventListener('input', () => {
+      zoom = parseFloat(zoomRange.value);
+      zoomValue.value = zoom.toFixed(1);
+    });
 
     function drawPlayer() {
       ctx.fillStyle = player.color;
@@ -65,14 +99,14 @@
       player.velocityY += gravity;
       player.y += player.velocityY;
 
-      // Check for collisions with the ground
+      // Check for collisions with the ground (including blocks)
       if (player.y > canvas.height - player.height) {
         player.y = canvas.height - player.height;
         player.velocityY = 0;
         player.jumping = false;
       }
 
-      // Check for collisions with obstacles
+      // Check for collisions with obstacles (including moving spike)
       obstacles.forEach((obstacle) => {
         if (
           player.x < obstacle.x + obstacle.width &&
@@ -84,6 +118,9 @@
           resetGame();
         }
       });
+
+      // Move the spike slowly in the x-direction
+      obstacles[0].x += 1;
 
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -98,8 +135,16 @@
 
     function jump() {
       if (!player.jumping) {
-        player.velocityY = -jumpStrength;
+        player.velocityY = -10; // Adjust jump strength based on gravity
         player.jumping = true;
+      }
+    }
+
+    function movePlayer(direction) {
+      if (direction === 'left') {
+        player.x -= 5;
+      } else if (direction === 'right') {
+        player.x += 5;
       }
     }
 
@@ -111,9 +156,8 @@
       player.jumping = false;
 
       // Reset obstacle positions
-      obstacles.forEach((obstacle, index) => {
-        obstacle.x = (index + 2) * 200;
-      });
+      obstacles[0].x = 200; // Spike
+      obstacles[1].x = 400; // Block
     }
 
     // Event listener for jumping on mouse click or space key
@@ -121,15 +165,10 @@
     window.addEventListener('keydown', (event) => {
       if (event.code === 'Space') {
         jump();
-      }
-    });
-
-    // Event listeners for arrow key controls
-    window.addEventListener('keydown', (event) => {
-      if (event.code === 'ArrowRight') {
-        player.x += 10;
       } else if (event.code === 'ArrowLeft') {
-        player.x -= 10;
+        movePlayer('left');
+      } else if (event.code === 'ArrowRight') {
+        movePlayer('right');
       }
     });
 
